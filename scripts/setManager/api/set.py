@@ -32,6 +32,7 @@ class Set:
                 self.add(sels)
         else:
             self.__objectSet = pm.PyNode(existingSet)
+        self.__name = self.__objectSet.name()
 
     def add(self, elements):
         pm.sets(self.__objectSet, e=True, forceElement=elements)

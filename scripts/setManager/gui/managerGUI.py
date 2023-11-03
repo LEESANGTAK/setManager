@@ -69,7 +69,7 @@ class ManagerGUI(QtWidgets.QWidget):
 
     def __connectWidgets(self):
         self.__addButton.clicked.connect(self.__addExistingSet)
-        self.__newButton.clicked.connect(self.__createNewSet)
+        self.__newButton.clicked.connect(lambda x: self.__createNewSet())
         self.__delButton.clicked.connect(self.__deleteSelectedSet)
         self.__treeWidget.itemSelectionChanged.connect(self.__selectChangedCallback)
         self.__treeWidget.customContextMenuRequested.connect(self.__showPopupMenu)
