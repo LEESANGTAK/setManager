@@ -45,3 +45,8 @@ class SetGUI(QtWidgets.QTreeWidgetItem):
             self.__set.isolate()
         else:
             self.__set.unisolate()
+
+    def rename(self, newName):
+        print(self.__set)
+        self.__set.name = newName
+        self.__nameLabel.setText(newName)

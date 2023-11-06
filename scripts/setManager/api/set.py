@@ -6,11 +6,17 @@ class SelectMode:
     ADD = 1
 
 
-class Set:
+class Set(object):
     SELECT_MODE = SelectMode()
 
-    def __init__(self, name='newSet'):
-        self.__name = name
+    def __init__(self, name='newSet', objectSet=None):
+        if objectSet:
+            self.__objectSet = pm.PyNode(objectSet)
+        else:
+            self.__objectSet = pm.sets(n=name, empty=True)
+            sels = pm.selected()
+            if sels:
+                self.add(sels)
 
     def __del__(self):
         pm.delete(self.__objectSet)
@@ -21,18 +27,8 @@ class Set:
 
     @name.setter
     def name(self, newName):
+        print("rename {} to {}".format(self.name, newName))
         self.__objectSet.rename(newName)
-        self.__name = newName
-
-    def addObjectSet(self, existingSet=None):
-        if not existingSet:
-            self.__objectSet = pm.sets(n=self.__name, empty=True)
-            sels = pm.selected()
-            if sels:
-                self.add(sels)
-        else:
-            self.__objectSet = pm.PyNode(existingSet)
-        self.__name = self.__objectSet.name()
 
     def add(self, elements):
         pm.sets(self.__objectSet, e=True, forceElement=elements)

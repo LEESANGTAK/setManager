@@ -17,12 +17,14 @@ import maya.mel as mel
 MAYA_VERSION = int(cmds.about(version=True))
 MODULE_PATH = os.path.dirname(__file__)
 # Need to modify below depend on module
-MODULE_NAME = <'myModule'>
-MODULE_VERSION = <'1.0.0'>
-SHELF_ICON_FILE = <'icon.png'>
-SHELF_BUTTON_COMMAND = <'''
-Write command here
-'''>
+MODULE_NAME = 'setManager'
+MODULE_VERSION = '1.0'
+SHELF_ICON_FILE = 'objectSet.svg'
+SHELF_BUTTON_COMMAND = '''
+import setManager as sm; reload(sm)
+smGUI = sm.gui.ManagerGUI()
+smGUI.show()
+'''
 
 
 def onMayaDroppedPythonFile(*args, **kwargs):

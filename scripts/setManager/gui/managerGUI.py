@@ -71,7 +71,7 @@ class ManagerGUI(QtWidgets.QWidget):
         self.__addButton.clicked.connect(self.__addExistingSet)
         self.__newButton.clicked.connect(lambda x: self.__createNewSet())
         self.__delButton.clicked.connect(self.__deleteSelectedSet)
-        self.__treeWidget.itemSelectionChanged.connect(self.__selectChangedCallback)
+        self.__treeWidget.itemDoubleClicked.connect(self.__selectChangedCallback)
         self.__treeWidget.customContextMenuRequested.connect(self.__showPopupMenu)
 
     def __showPopupMenu(self, pos):
@@ -89,6 +89,8 @@ class ManagerGUI(QtWidgets.QWidget):
             removeAction.setToolTip('Remove selected objects from the set.')
             resetAction = menu.addAction(QtGui.QIcon(":menuIconReset.png"), 'Reset', self.__resetSelectedElements)
             resetAction.setToolTip('Reset with selected objects.')
+            renameAction = menu.addAction(QtGui.QIcon(":quickRename.png"), 'Rename', self.__renameSelectedSet)
+            renameAction.setToolTip('Rename selected set.')
         else:
             unionAction = menu.addAction(QtGui.QIcon(":nurbsShellUnion.png"), 'Union', self.__unionSelectedSets)
             unionAction.setToolTip('Make a new union set with selected sets.')
@@ -116,6 +118,20 @@ class ManagerGUI(QtWidgets.QWidget):
         sels = pm.selected()
         selItem.set.reset(sels)
 
+    def __renameSelectedSet(self):
+        result = pm.promptDialog(
+            title='Rename Set',
+            message='Enter Name:',
+            button=['OK', 'Cancel'],
+            defaultButton='OK',
+            cancelButton='Cancel',
+            dismissString='Cancel'
+        )
+        if result == 'OK':
+            text = pm.promptDialog(query=True, text=True)
+            selItem = self.__treeWidget.selectedItems()[0]
+            selItem.rename(text)
+
     def __unionSelectedSets(self):
         selSets = [item.set for item in self.__treeWidget.selectedItems()]
         pm.select(selSets[0].union(selSets[1:]), r=True)
@@ -140,9 +156,9 @@ class ManagerGUI(QtWidgets.QWidget):
         if not selObjSets:
             selObjSets = pm.ls(type="objectSet")
 
-        allSetNames = [set.name for set in self.__manager.sets]
+        existingSetNames = [set.name for set in self.__manager.sets]
         for objSet in selObjSets:
-            if objSet.name() in ManagerGUI.INVALID_OBJECT_SET_NAMES or objSet.name() in allSetNames:
+            if objSet.name() in ManagerGUI.INVALID_OBJECT_SET_NAMES or objSet.name() in existingSetNames:
                 continue
             set = self.__manager.addSet(objSet)
             SetGUI(set, self.__treeWidget)

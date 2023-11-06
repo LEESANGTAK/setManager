@@ -12,14 +12,12 @@ class Manager:
         return self.__sets
 
     def addSet(self, objectSet):
-        set = Set(objectSet.name())
-        set.addObjectSet(objectSet)
+        set = Set(objectSet=objectSet)
         self.__sets.append(set)
         return set
 
     def createSet(self, name):
-        set = Set(name)
-        set.addObjectSet()
+        set = Set(name=name)
         self.__sets.append(set)
         return set
 
