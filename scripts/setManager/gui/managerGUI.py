@@ -1,3 +1,4 @@
+from maya import cmds
 import pymel.core as pm
 
 from ..api import Manager
@@ -154,14 +155,17 @@ class ManagerGUI(QtWidgets.QWidget):
         selObjSets = pm.selected(type="objectSet")
 
         if not selObjSets:
-            selObjSets = pm.ls(type="objectSet")
+            selObjSets = [node for node in pm.ls(type="objectSet") if node.nodeType() == "objectSet"]
 
-        existingSetNames = [set.name for set in self.__manager.sets]
+        # Remove deformer sets in the list
+        selObjSets = list(set(selObjSets) - set(pm.listSets(type=2)))
+
+        existingSetNames = [setInst.name for setInst in self.__manager.sets]
         for objSet in selObjSets:
             if objSet.name() in ManagerGUI.INVALID_OBJECT_SET_NAMES or objSet.name() in existingSetNames:
                 continue
-            set = self.__manager.addSet(objSet)
-            SetGUI(set, self.__treeWidget)
+            setInst = self.__manager.addSet(objSet)
+            SetGUI(setInst, self.__treeWidget)
 
     def __createNewSet(self, name="newSet"):
         set = self.__manager.createSet(name)
