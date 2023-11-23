@@ -156,9 +156,7 @@ class ManagerGUI(QtWidgets.QWidget):
 
         if not selObjSets:
             selObjSets = [node for node in pm.ls(type="objectSet") if node.nodeType() == "objectSet"]
-
-        # Remove deformer sets in the list
-        selObjSets = list(set(selObjSets) - set(pm.listSets(type=2)))
+            selObjSets = list(set(selObjSets) - set(pm.listSets(type=2)))
 
         existingSetNames = [setInst.name for setInst in self.__manager.sets]
         for objSet in selObjSets:
