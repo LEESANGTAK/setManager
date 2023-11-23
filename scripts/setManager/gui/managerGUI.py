@@ -31,8 +31,11 @@ class ManagerGUI(QtWidgets.QWidget):
     def __createWidgets(self):
         # Buttons
         self.__addButton = QtWidgets.QPushButton("Add")
-        self.__addButton.setIcon(QtGui.QIcon(":createSelectionSet.png"))
+        self.__addButton.setIcon(QtGui.QIcon(":setEdAddCmd.png"))
         self.__addButton.setToolTip("Add existing object sets.")
+        self.__removeButton = QtWidgets.QPushButton("Remove")
+        self.__removeButton.setIcon(QtGui.QIcon(":setEdRemoveCmd.png"))
+        self.__removeButton.setToolTip("Remove selected object sets.")
         self.__newButton = QtWidgets.QPushButton("New")
         self.__newButton.setIcon(QtGui.QIcon(":out_objectSet.png"))
         self.__newButton.setToolTip("Create a new object set with selected objects.")
@@ -62,6 +65,7 @@ class ManagerGUI(QtWidgets.QWidget):
         # Layout for Buttons
         layoutBtns = QtWidgets.QHBoxLayout()
         layoutBtns.addWidget(self.__addButton)
+        layoutBtns.addWidget(self.__removeButton)
         layoutBtns.addWidget(self.__newButton)
         layoutBtns.addWidget(self.__delButton)
         mainLayout.addLayout(layoutBtns)
@@ -70,6 +74,7 @@ class ManagerGUI(QtWidgets.QWidget):
 
     def __connectWidgets(self):
         self.__addButton.clicked.connect(self.__addExistingSet)
+        self.__removeButton.clicked.connect(self.__removeSelectedSets)
         self.__newButton.clicked.connect(lambda x: self.__createNewSet())
         self.__delButton.clicked.connect(self.__deleteSelectedSet)
         self.__treeWidget.itemDoubleClicked.connect(self.__selectChangedCallback)
@@ -152,18 +157,33 @@ class ManagerGUI(QtWidgets.QWidget):
         self.__createNewSet(setName)
 
     def __addExistingSet(self):
-        selObjSets = pm.selected(type="objectSet")
-
+        selObjSets = cmds.ls(sl=True, type="objectSet")
         if not selObjSets:
-            selObjSets = [node for node in pm.ls(type="objectSet") if node.nodeType() == "objectSet"]
-            selObjSets = list(set(selObjSets) - set(pm.listSets(type=2)))
+            selObjSets = [node for node in cmds.ls(type="objectSet") if cmds.nodeType(node) == "objectSet"]
+
+        # Remove deformer sets in the list
+        deformerSets = []
+        for objSet in selObjSets:
+            inputs = cmds.listConnections("{}.usedBy".format(objSet), d=False)
+            if inputs:
+                deformerSets.append(objSet)
+        selObjSets = list(set(selObjSets) - set(deformerSets))
+        # Remove default sets in the list
+        selObjSets = [item for item in selObjSets if not "default" in item]
 
         existingSetNames = [setInst.name for setInst in self.__manager.sets]
         for objSet in selObjSets:
+            objSet = pm.PyNode(objSet)
             if objSet.name() in ManagerGUI.INVALID_OBJECT_SET_NAMES or objSet.name() in existingSetNames:
                 continue
             setInst = self.__manager.addSet(objSet)
             SetGUI(setInst, self.__treeWidget)
+
+    def __removeSelectedSets(self):
+        root = self.__treeWidget.invisibleRootItem()
+        for item in self.__treeWidget.selectedItems():
+            self.__manager.removeSet(item.set)
+            root.removeChild(item)
 
     def __createNewSet(self, name="newSet"):
         set = self.__manager.createSet(name)
@@ -172,7 +192,7 @@ class ManagerGUI(QtWidgets.QWidget):
     def __deleteSelectedSet(self):
         root = self.__treeWidget.invisibleRootItem()
         for item in self.__treeWidget.selectedItems():
-            self.__manager.removeSet(item.set)
+            self.__manager.deleteSet(item.set)
             root.removeChild(item)
 
     def closeEvent(self, event):

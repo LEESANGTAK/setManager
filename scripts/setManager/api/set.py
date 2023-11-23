@@ -18,9 +18,6 @@ class Set(object):
             if sels:
                 self.add(sels)
 
-    def __del__(self):
-        pm.delete(self.__objectSet)
-
     @property
     def name(self):
         return self.__objectSet.name()

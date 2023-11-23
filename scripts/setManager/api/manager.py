@@ -5,7 +5,6 @@ from .set import Set
 class Manager:
     def __init__(self):
         self.__sets = []
-        pass
 
     @property
     def sets(self):
@@ -16,11 +15,14 @@ class Manager:
         self.__sets.append(set)
         return set
 
+    def removeSet(self, set):
+        self.__sets.remove(set)
+
     def createSet(self, name):
         set = Set(name=name)
         self.__sets.append(set)
         return set
 
-    def removeSet(self, set):
-        self.__sets.remove(set)
-        del(set)
+    def deleteSet(self, set):
+        self.removeSet(set)
+        pm.delete(set.name)
