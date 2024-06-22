@@ -10,15 +10,15 @@ Description:
 import os
 import sys
 
-import maya.cmds as cmds
-import maya.mel as mel
+from maya import cmds, mel
 
 
 MAYA_VERSION = int(cmds.about(version=True))
-MODULE_PATH = os.path.dirname(__file__)
+MODULE_NAME = os.path.dirname(__file__).rsplit('/', 1)[-1]
+MODULE_PATH = os.path.dirname(__file__).replace('\\', '/')
 # Need to modify below depend on module
-MODULE_NAME = 'setManager'
-MODULE_VERSION = '1.0'
+AVAILABLE_VERSIONS = [2020, 2022, 2024]
+MODULE_VERSION = 'any'
 SHELF_ICON_FILE = 'objectSet.svg'
 SHELF_BUTTON_COMMAND = '''
 import setManager as sm; reload(sm)
@@ -28,54 +28,41 @@ smGUI.show()
 
 
 def onMayaDroppedPythonFile(*args, **kwargs):
-    modulesDir = getModulesDirectory()
-    createModuleFile(modulesDir)
-    addScriptPath()
-    loadPlugins()
+    removeOldInstallModule()
+    addEnvPaths()
     addShelfButtons()
+    createModuleFile()
+    cmds.confirmDialog(title='Info', message='"{}" module is installed successfully.'.format(MODULE_NAME))
 
 
-def getModulesDirectory():
-    modulesDir = None
-
-    mayaAppDir = cmds.internalVar(uad=True)
-    modulesDir = os.path.join(mayaAppDir, 'modules')
-
-    if not os.path.exists(modulesDir):
-        os.mkdir(modulesDir)
-
-    return modulesDir
+def removeOldInstallModule():
+    foundOldInstall = False
+    for modName in sys.modules:
+        if modName == 'install':
+            foundOldInstall = True
+            break
+    if foundOldInstall:
+        del(sys.modules[modName])
 
 
-def createModuleFile(modulesDir):
-    moduleFileName = '{0}.mod'.format(MODULE_NAME)
+def addEnvPaths():
+    # Add python paths
+    pythonPaths = [
+        '{}/scripts'.format(MODULE_PATH),
+    ]
+    for pythonPath in pythonPaths:
+        sys.path.append(pythonPath)
 
-    # Need to modify depend on module
-    contents = '''
-+ MAYAVERSION:2020 {moduleName} {moduleVersion} {modulePath}
-MAYA_PLUG_IN_PATH +:= plug-ins/2020
+    # # Add plug-ins paths
+    # pluginsPaths = mel.eval('getenv "MAYA_PLUG_IN_PATH";')
+    # pluginsPaths += ';{}/plug-ins'.format(MODULE_PATH)
+    # pluginsPaths += ';{}/plug-ins/{}'.format(MODULE_PATH, MAYA_VERSION)
+    # mel.eval('putenv "MAYA_PLUG_IN_PATH" "{}";'.format(pluginsPaths))
 
-+ MAYAVERSION:2024 {moduleName} {moduleVersion} {modulePath}
-MAYA_PLUG_IN_PATH +:= plug-ins/2024
-'''.format(moduleName=MODULE_NAME, moduleVersion=MODULE_VERSION, modulePath=MODULE_PATH)
-
-    with open(os.path.join(modulesDir, moduleFileName), 'w') as f:
-        f.write(contents)
-
-
-def addScriptPath():
-    scriptPath = MODULE_PATH + '/scripts'
-    if not scriptPath in sys.path:
-        sys.path.append(scriptPath)
-
-
-def loadPlugins():
-    pluginsPath = os.path.join(MODULE_PATH, 'plug-ins/{0}'.format(MAYA_VERSION))
-    if os.path.exists(pluginsPath):
-        pluginFiles = os.listdir(pluginsPath)
-        if pluginFiles:
-            for pluginFile in pluginFiles:
-                cmds.loadPlugin(os.path.join(pluginsPath, pluginFile))
+    # # Add icon folder path
+    # iconPaths = mel.eval('getenv "XBMLANGPATH";')
+    # iconPaths += ';{}/icons'.format(MODULE_PATH)
+    # mel.eval('putenv "XBMLANGPATH" "{}";'.format(iconPaths))
 
 
 def addShelfButtons():
@@ -98,3 +85,30 @@ def getCurrentShelf():
     curShelf = cmds.tabLayout(shelf, query=True, selectTab=True)
 
     return curShelf
+
+
+# Folders in the module directory that named as "icons, plug-ins, scripts" are automatically added to the maya environment variables.
+def createModuleFile():
+    moduleFileName = '{}.mod'.format(MODULE_NAME)
+
+    contentsBlock = '''+ MAYAVERSION:{0} {1} {2} {3}
+
+'''
+    contents = ''
+    for availVersion in AVAILABLE_VERSIONS:
+        contents += contentsBlock.format(availVersion, MODULE_NAME, MODULE_VERSION, MODULE_PATH)
+
+    with open(os.path.join(getModulesDirectory(), moduleFileName), 'w') as f:
+        f.write(contents)
+
+
+def getModulesDirectory():
+    modulesDir = None
+
+    mayaAppDir = cmds.internalVar(uad=True)
+    modulesDir = os.path.join(mayaAppDir, 'modules')
+
+    if not os.path.exists(modulesDir):
+        os.mkdir(modulesDir)
+
+    return modulesDir

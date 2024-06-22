@@ -31,17 +31,17 @@ class ManagerGUI(QtWidgets.QWidget):
     def __createWidgets(self):
         # Buttons
         self.__addButton = QtWidgets.QPushButton("Add")
-        self.__addButton.setIcon(QtGui.QIcon(":setEdAddCmd.png"))
-        self.__addButton.setToolTip("Add existing object sets.")
+        self.__addButton.setIcon(QtGui.QIcon(":out_objectSet.png"))
+        self.__addButton.setToolTip("Add selected or existing object sets in the scene.")
         self.__removeButton = QtWidgets.QPushButton("Remove")
-        self.__removeButton.setIcon(QtGui.QIcon(":setEdRemoveCmd.png"))
-        self.__removeButton.setToolTip("Remove selected object sets.")
+        self.__removeButton.setIcon(QtGui.QIcon(":out_objectSet.png"))
+        self.__removeButton.setToolTip("Remove selected object sets in the list.")
         self.__newButton = QtWidgets.QPushButton("New")
         self.__newButton.setIcon(QtGui.QIcon(":out_objectSet.png"))
         self.__newButton.setToolTip("Create a new object set with selected objects.")
         self.__delButton = QtWidgets.QPushButton("Delete")
         self.__delButton.setIcon(QtGui.QIcon(":delete.png"))
-        self.__delButton.setToolTip("Delete selected object sets.")
+        self.__delButton.setToolTip("Delete selected object sets in the list.")
 
         # Tree Wdiget
         self.__treeWidget = QtWidgets.QTreeWidget()
@@ -83,12 +83,12 @@ class ManagerGUI(QtWidgets.QWidget):
     def __showPopupMenu(self, pos):
         selItems = self.__treeWidget.selectedItems()
 
-        if not selItems:
-            return
-
         menu = QtWidgets.QMenu(self.__treeWidget)
         menu.setToolTipsVisible(True)
-        if len(selItems) == 1:
+        if len(selItems) == 0:
+            refreshAction = menu.addAction(QtGui.QIcon(":refresh.png"), 'Refresh', self.__addExistingSet)
+            refreshAction.setToolTip('Add selected or existing object sets in the scene.')
+        elif len(selItems) == 1:
             addAction = menu.addAction(QtGui.QIcon(":setEdAddCmd.png"), 'Add', self.__addSelectedElements)
             addAction.setToolTip('Add selected objects to the set.')
             removeAction = menu.addAction(QtGui.QIcon(":setEdRemoveCmd.png"), 'Remove', self.__removeSelectedElements)
