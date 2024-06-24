@@ -93,8 +93,8 @@ class ManagerGUI(QtWidgets.QWidget):
             addAction.setToolTip('Add selected objects to the set.')
             removeAction = menu.addAction(QtGui.QIcon(":setEdRemoveCmd.png"), 'Remove', self.__removeSelectedElements)
             removeAction.setToolTip('Remove selected objects from the set.')
-            resetAction = menu.addAction(QtGui.QIcon(":menuIconReset.png"), 'Reset', self.__resetSelectedElements)
-            resetAction.setToolTip('Reset with selected objects.')
+            clearAction = menu.addAction(QtGui.QIcon(":clearCanvas.png"), 'Clear', self.__clearSelectedSet)
+            clearAction.setToolTip('Remove all items in the set.')
             renameAction = menu.addAction(QtGui.QIcon(":quickRename.png"), 'Rename', self.__renameSelectedSet)
             renameAction.setToolTip('Rename selected set.')
         else:
@@ -119,10 +119,9 @@ class ManagerGUI(QtWidgets.QWidget):
         sels = pm.selected()
         selItem.set.remove(sels)
 
-    def __resetSelectedElements(self):
+    def __clearSelectedSet(self):
         selItem = self.__treeWidget.selectedItems()[0]
-        sels = pm.selected()
-        selItem.set.reset(sels)
+        selItem.set.clear()
 
     def __renameSelectedSet(self):
         result = pm.promptDialog(
