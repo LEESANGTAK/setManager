@@ -18,6 +18,8 @@ class Set(object):
             if sels:
                 self.add(sels)
 
+        self._isHidden = False
+
     @property
     def name(self):
         return self.__objectSet.name()
@@ -29,6 +31,8 @@ class Set(object):
 
     def add(self, elements):
         pm.sets(self.__objectSet, e=True, forceElement=elements)
+        if self._isHidden:
+            self.hide()
 
     def remove(self, elements):
         pm.sets(self.__objectSet, e=True, remove=elements)
@@ -53,11 +57,13 @@ class Set(object):
         pm.select(self.__objectSet, r=True)
         pm.mel.HideSelectedObjects()
         pm.select(cl=True)
+        self._isHidden = True
 
     def show(self):
         self.select()
         pm.mel.ShowSelectedObjects()
         pm.select(cl=True)
+        self._isHidden = False
 
     def isolate(self):
         self.select()
