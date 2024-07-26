@@ -10,6 +10,8 @@ class Set(object):
     SELECT_MODE = SelectMode()
 
     def __init__(self, name='newSet', objectSet=None):
+        self._isHidden = False
+
         if objectSet:
             self.__objectSet = pm.PyNode(objectSet)
         else:
@@ -17,8 +19,6 @@ class Set(object):
             sels = pm.selected()
             if sels:
                 self.add(sels)
-
-        self._isHidden = False
 
     @property
     def name(self):
