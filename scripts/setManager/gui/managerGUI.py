@@ -31,7 +31,7 @@ class ManagerGUI(QtWidgets.QWidget):
     def __createWidgets(self):
         # Buttons
         self.__addButton = QtWidgets.QPushButton("Add")
-        self.__addButton.setIcon(QtGui.QIcon(":out_objectSet.png"))
+        self.__addButton.setIcon(QtGui.QIcon(":refresh.png"))
         self.__addButton.setToolTip("Add selected or existing object sets in the scene.")
         self.__removeButton = QtWidgets.QPushButton("Remove")
         self.__removeButton.setIcon(QtGui.QIcon(":out_objectSet.png"))
@@ -77,7 +77,8 @@ class ManagerGUI(QtWidgets.QWidget):
         self.__removeButton.clicked.connect(self.__removeSelectedSets)
         self.__newButton.clicked.connect(lambda x: self.__createNewSet())
         self.__delButton.clicked.connect(self.__deleteSelectedSet)
-        self.__treeWidget.itemDoubleClicked.connect(self.__selectChangedCallback)
+        self.__treeWidget.itemDoubleClicked.connect(self.__renameSelectedSet)
+        self.__treeWidget.itemSelectionChanged.connect(self.__selectionChangedCallback)
         self.__treeWidget.customContextMenuRequested.connect(self.__showPopupMenu)
 
     def __showPopupMenu(self, pos):
@@ -86,8 +87,8 @@ class ManagerGUI(QtWidgets.QWidget):
         menu = QtWidgets.QMenu(self.__treeWidget)
         menu.setToolTipsVisible(True)
         if len(selItems) == 0:
-            refreshAction = menu.addAction(QtGui.QIcon(":refresh.png"), 'Refresh', self.__addExistingSet)
-            refreshAction.setToolTip('Add selected or existing object sets in the scene.')
+            addExistingSetsAction = menu.addAction(QtGui.QIcon(":refresh.png"), 'Refresh', self.__addExistingSet)
+            addExistingSetsAction.setToolTip('Add selected or existing object sets in the scene.')
         elif len(selItems) == 1:
             addAction = menu.addAction(QtGui.QIcon(":setEdAddCmd.png"), 'Add', self.__addSelectedElements)
             addAction.setToolTip('Add selected objects to the set.')
@@ -95,8 +96,8 @@ class ManagerGUI(QtWidgets.QWidget):
             removeAction.setToolTip('Remove selected objects from the set.')
             clearAction = menu.addAction(QtGui.QIcon(":clearCanvas.png"), 'Clear', self.__clearSelectedSet)
             clearAction.setToolTip('Remove all items in the set.')
-            renameAction = menu.addAction(QtGui.QIcon(":quickRename.png"), 'Rename', self.__renameSelectedSet)
-            renameAction.setToolTip('Rename selected set.')
+            selectAction = menu.addAction(QtGui.QIcon(":aselect.png"), 'Select', self.__selectMembers)
+            selectAction.setToolTip('Select members in a selected set.')
         else:
             unionAction = menu.addAction(QtGui.QIcon(":nurbsShellUnion.png"), 'Union', self.__unionSelectedSets)
             unionAction.setToolTip('Make a new union set with selected sets.')
@@ -123,19 +124,20 @@ class ManagerGUI(QtWidgets.QWidget):
         selItem = self.__treeWidget.selectedItems()[0]
         selItem.set.clear()
 
+    def __selectMembers(self):
+        selItem = self.__treeWidget.selectedItems()[0]
+        selItem.set.select()
+
+    def __selectionChangedCallback(self):
+        for i in range(self.__treeWidget.topLevelItemCount()):
+            item = self.__treeWidget.topLevelItem(i)
+            if not item.isSelected() and item.isEditingName:
+                item.exitEditNameMode()
+
     def __renameSelectedSet(self):
-        result = pm.promptDialog(
-            title='Rename Set',
-            message='Enter Name:',
-            button=['OK', 'Cancel'],
-            defaultButton='OK',
-            cancelButton='Cancel',
-            dismissString='Cancel'
-        )
-        if result == 'OK':
-            text = pm.promptDialog(query=True, text=True)
-            selItem = self.__treeWidget.selectedItems()[0]
-            selItem.rename(text)
+        selItems = self.__treeWidget.selectedItems()
+        if len(selItems) == 1:
+            selItems[0].enterEditNameMode()
 
     def __unionSelectedSets(self):
         selSets = [item.set for item in self.__treeWidget.selectedItems()]
@@ -198,18 +200,3 @@ class ManagerGUI(QtWidgets.QWidget):
         self.__treeWidget.clear()
         event.accept()
         super(ManagerGUI, self).closeEvent(event)
-
-    def __selectChangedCallback(self):
-        selItems = self.__treeWidget.selectedItems()
-        if not selItems:
-            pm.select(clear=True)
-        elif len(selItems) == 1:
-            selItems[0].set.select()
-        else:
-            selSets = []
-            for i in range(self.__treeWidget.topLevelItemCount()):
-                item = self.__treeWidget.topLevelItem(i)
-                if item.isSelected():
-                    selSets.append(item.set)
-            pm.select(cl=True)
-            pm.select(selSets[0].union(selSets[1:]), r=True)
