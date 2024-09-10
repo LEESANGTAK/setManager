@@ -21,6 +21,7 @@ AVAILABLE_VERSIONS = [2020, 2022, 2024]
 MODULE_VERSION = 'any'
 SHELF_ICON_FILE = 'objectSet.svg'
 SHELF_BUTTON_COMMAND = '''
+from imp import reload
 import setManager as sm; reload(sm)
 smGUI = sm.gui.ManagerGUI()
 smGUI.show()
