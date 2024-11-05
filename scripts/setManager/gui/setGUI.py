@@ -58,6 +58,7 @@ class SetGUI(QtWidgets.QTreeWidgetItem):
 
     def enterEditNameMode(self):
         self.__nameLE.setText(self.__nameLabel.text())
+        self.__nameLE.setFocus()
         self.__nameLE.selectAll()
         self.__nameStack.setCurrentIndex(1)
         self.__isEditingName = True

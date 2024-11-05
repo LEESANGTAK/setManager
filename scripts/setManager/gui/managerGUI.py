@@ -30,9 +30,9 @@ class ManagerGUI(QtWidgets.QWidget):
 
     def __createWidgets(self):
         # Buttons
-        self.__addButton = QtWidgets.QPushButton("Add")
-        self.__addButton.setIcon(QtGui.QIcon(":refresh.png"))
-        self.__addButton.setToolTip("Add selected or existing object sets in the scene.")
+        self.__refreshButton = QtWidgets.QPushButton("Refresh")
+        self.__refreshButton.setIcon(QtGui.QIcon(":refresh.png"))
+        self.__refreshButton.setToolTip("Add selected or existing object sets in the scene.")
         self.__removeButton = QtWidgets.QPushButton("Remove")
         self.__removeButton.setIcon(QtGui.QIcon(":out_objectSet.png"))
         self.__removeButton.setToolTip("Remove selected object sets in the list.")
@@ -64,7 +64,7 @@ class ManagerGUI(QtWidgets.QWidget):
 
         # Layout for Buttons
         layoutBtns = QtWidgets.QHBoxLayout()
-        layoutBtns.addWidget(self.__addButton)
+        layoutBtns.addWidget(self.__refreshButton)
         layoutBtns.addWidget(self.__removeButton)
         layoutBtns.addWidget(self.__newButton)
         layoutBtns.addWidget(self.__delButton)
@@ -73,7 +73,7 @@ class ManagerGUI(QtWidgets.QWidget):
         mainLayout.addWidget(self.__treeWidget)
 
     def __connectWidgets(self):
-        self.__addButton.clicked.connect(self.__addExistingSet)
+        self.__refreshButton.clicked.connect(self.__addExistingSet)
         self.__removeButton.clicked.connect(self.__removeSelectedSets)
         self.__newButton.clicked.connect(lambda x: self.__createNewSet())
         self.__delButton.clicked.connect(self.__deleteSelectedSet)
