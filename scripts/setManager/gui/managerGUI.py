@@ -131,8 +131,11 @@ class ManagerGUI(QtWidgets.QWidget):
     def __selectionChangedCallback(self):
         for i in range(self.__treeWidget.topLevelItemCount()):
             item = self.__treeWidget.topLevelItem(i)
-            if not item.isSelected() and item.isEditingName:
-                item.exitEditNameMode()
+            try:
+                if not item.isSelected() and item.isEditingName:
+                    item.exitEditNameMode()
+            except:
+                pass
 
     def __renameSelectedSet(self):
         selItems = self.__treeWidget.selectedItems()
