@@ -22,7 +22,7 @@ class SetGUI(QtWidgets.QTreeWidgetItem):
         return self.__isEditingName
 
     def _createWidgets(self):
-        self.__eyeIcon = IconButton(":visible.png", checkable=True)
+        self.__eyeIcon = IconButton(":eye.png", checkable=True)
         self.__eyeIcon.setChecked(True)
         self.__eyeIcon.setToolTip("Hide/Show set members.")
         self.__isoIcon = IconButton(":UVEditorIsolate.png", checkable=True)

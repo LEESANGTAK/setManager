@@ -51,7 +51,7 @@ class ManagerGUI(QtWidgets.QWidget):
         self.__treeWidget.setColumnWidth(1, 100)
 
         model = self.__treeWidget.model()
-        model.setHeaderData(0, QtCore.Qt.Horizontal, QtGui.QIcon(":visible.png"), QtCore.Qt.DecorationRole)
+        model.setHeaderData(0, QtCore.Qt.Horizontal, QtGui.QIcon(":eye.png"), QtCore.Qt.DecorationRole)
         model.setHeaderData(1, QtCore.Qt.Horizontal, QtGui.QIcon(":UVEditorIsolate.png"), QtCore.Qt.DecorationRole)
         self.__treeWidget.setHeaderLabels(["", "", "Name"])
         self.__treeWidget.header().setDefaultAlignment(QtCore.Qt.AlignCenter)
@@ -75,7 +75,7 @@ class ManagerGUI(QtWidgets.QWidget):
     def __connectWidgets(self):
         self.__refreshButton.clicked.connect(self.__addExistingSet)
         self.__removeButton.clicked.connect(self.__removeSelectedSets)
-        self.__newButton.clicked.connect(lambda x: self.__createNewSet())
+        self.__newButton.clicked.connect(lambda : self.__createNewSet())
         self.__delButton.clicked.connect(self.__deleteSelectedSet)
         self.__treeWidget.itemDoubleClicked.connect(self.__renameSelectedSet)
         self.__treeWidget.itemSelectionChanged.connect(self.__selectionChangedCallback)
