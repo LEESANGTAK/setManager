@@ -28,6 +28,7 @@ class SetGUI(QtWidgets.QTreeWidgetItem):
         self.__isoIcon = IconButton(":UVEditorIsolate.png", checkable=True)
         self.__isoIcon.setToolTip("Isolate set members.")
         self.__nameLabel = QtWidgets.QLabel(self.__set.name)
+        self.__nameLabel.setToolTip(self.__set.name)
         self.__nameLE = QtWidgets.QLineEdit()
         self.__nameStack = QtWidgets.QStackedWidget()
         self.__nameStack.addWidget(self.__nameLabel)
@@ -66,5 +67,6 @@ class SetGUI(QtWidgets.QTreeWidgetItem):
     def exitEditNameMode(self):
         self.__set.name = self.__nameLE.text()
         self.__nameLabel.setText(self.__set.name)
+        self.__nameLabel.setToolTip(self.__set.name)
         self.__nameStack.setCurrentIndex(0)
         self.__isEditingName = False

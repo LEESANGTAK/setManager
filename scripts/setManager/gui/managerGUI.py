@@ -22,7 +22,7 @@ class ManagerGUI(QtWidgets.QWidget):
         self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.WindowCloseButtonHint)
         self.setWindowIcon(QtGui.QIcon(":out_objectSet.png"))
         self.setWindowTitle("Set Manager")
-        self.resize(640, 480)
+        self.resize(400, 400)
 
         self.__createWidgets()
         self.__layoutWidgets()
@@ -77,6 +77,7 @@ class ManagerGUI(QtWidgets.QWidget):
         self.__removeButton.clicked.connect(self.__removeSelectedSets)
         self.__newButton.clicked.connect(lambda : self.__createNewSet())
         self.__delButton.clicked.connect(self.__deleteSelectedSet)
+        self.__treeWidget.itemClicked.connect(self.__selectMembers)
         self.__treeWidget.itemDoubleClicked.connect(self.__renameSelectedSet)
         self.__treeWidget.itemSelectionChanged.connect(self.__selectionChangedCallback)
         self.__treeWidget.customContextMenuRequested.connect(self.__showPopupMenu)
