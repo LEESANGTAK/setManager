@@ -66,6 +66,7 @@ class SetGUI(QtWidgets.QTreeWidgetItem):
 
     def exitEditNameMode(self):
         self.__set.name = self.__nameLE.text()
+        self.__nameLE.clearFocus()
         self.__nameLabel.setText(self.__set.name)
         self.__nameLabel.setToolTip(self.__set.name)
         self.__nameStack.setCurrentIndex(0)
